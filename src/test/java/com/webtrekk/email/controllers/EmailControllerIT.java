@@ -55,9 +55,10 @@ public class EmailControllerIT extends BaseIT {
                 Void.class);
 
         //allow to consume
+        failTopicManualConsumer.commitSync();
         Thread.sleep(delayForConsumer);
         verify(emailClientMock, times(3)).sendEmail(emailCaptor.capture());
-        final EmailAvro failedEmail = KafkaTestUtils.getSingleRecord(failTopicManualConsumer, FAILED_TOPIC).value();
+        final EmailAvro failedEmail = KafkaTestUtils.getSingleRecord(failTopicManualConsumer, failedTopic).value();
         assertThat(failedEmail.getId(), is(emailCaptor.getValue().getId()));
         assertThat(failedEmail.getRetries(), is(0));
 

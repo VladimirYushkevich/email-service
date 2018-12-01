@@ -1,10 +1,7 @@
 buildscript {
     ext {
-        springBootVersion = '2.0.6.RELEASE'
-        kafkaVersion = '2.1.5.RELEASE'
+        springBootVersion = '2.1.1.RELEASE'
         swaggerVersion = '2.9.2'
-        lombokVersion = '1.18.2'
-        log4jVersion = '1.2.17'
         avroVersion = '1.8.2'
     }
     repositories {
@@ -31,27 +28,23 @@ sourceCompatibility = 1.8
 repositories {
     jcenter()
     mavenCentral()
+    maven {
+        url 'https://repo.spring.io/libs-milestone'
+    }
 }
 
 dependencies {
-    // Spring Boot
     implementation('org.springframework.boot:spring-boot-starter-web')
-    // Kafka
-    implementation("org.springframework.kafka:spring-kafka:${kafkaVersion}") {
-        exclude group: 'org.slf4j', module: 'slf4j-log4j12'
-    }
+    implementation('org.apache.kafka:kafka-streams')
+    implementation('org.springframework.kafka:spring-kafka')
     implementation("org.apache.avro:avro:${avroVersion}")
-    // API
     implementation("io.springfox:springfox-swagger2:${swaggerVersion}")
     implementation("io.springfox:springfox-swagger-ui:${swaggerVersion}")
-    // Utils
-    annotationProcessor("org.projectlombok:lombok:${lombokVersion}")
-    implementation("org.projectlombok:lombok:${lombokVersion}")
-    // Tests
+    implementation('org.projectlombok:lombok')
+    annotationProcessor("org.projectlombok:lombok")
     testImplementation('org.springframework.boot:spring-boot-starter-test')
-    testImplementation("org.springframework.kafka:spring-kafka-test:${kafkaVersion}")
-    testImplementation("log4j:log4j:${log4jVersion}")
-    testAnnotationProcessor("org.projectlombok:lombok:${lombokVersion}")
+    testImplementation('org.springframework.kafka:spring-kafka-test')
+    testAnnotationProcessor("org.projectlombok:lombok")
 }
 
 avro {

@@ -14,18 +14,16 @@ import org.springframework.beans.factory.annotation.Value;
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.boot.test.web.client.TestRestTemplate;
 import org.springframework.kafka.annotation.EnableKafka;
-import org.springframework.kafka.config.KafkaListenerEndpointRegistry;
 import org.springframework.kafka.core.ConsumerFactory;
 import org.springframework.kafka.core.DefaultKafkaConsumerFactory;
-import org.springframework.kafka.listener.MessageListenerContainer;
+import org.springframework.kafka.test.EmbeddedKafkaBroker;
 import org.springframework.kafka.test.context.EmbeddedKafka;
-import org.springframework.kafka.test.rule.KafkaEmbedded;
-import org.springframework.kafka.test.utils.ContainerTestUtils;
 import org.springframework.kafka.test.utils.KafkaTestUtils;
 import org.springframework.test.annotation.DirtiesContext;
 import org.springframework.test.context.ActiveProfiles;
 import org.springframework.test.context.junit4.SpringRunner;
 
+import java.time.Duration;
 import java.util.Map;
 
 import static java.util.Collections.singleton;
@@ -35,7 +33,7 @@ import static org.mockito.Mockito.reset;
 @SpringBootTest(webEnvironment = SpringBootTest.WebEnvironment.RANDOM_PORT)
 @DirtiesContext
 @EnableKafka
-@EmbeddedKafka(partitions = 1, brokerProperties = {"listeners=PLAINTEXT://localhost:3333", "port=3333"})
+@EmbeddedKafka
 @ActiveProfiles("test")
 public abstract class BaseIT {
 
@@ -48,30 +46,25 @@ public abstract class BaseIT {
     @Value(value = "${kafka.test.delayForConsumerInMilliseconds}")
     protected Long delayForConsumer;
 
-    @Autowired
-    protected KafkaEmbedded kafkaEmbedded;
+    @Value(value = "${kafka.email.fail.topic.name}")
+    protected String failedTopic;
 
     protected Consumer<String, EmailAvro> failTopicManualConsumer;
 
-    protected final String FAILED_TOPIC = "EmailTestFail";
-
     @Autowired
-    private KafkaListenerEndpointRegistry kafkaListenerEndpointRegistry;
+    private EmbeddedKafkaBroker embeddedKafkaBroker;
 
     @Before
-    public void setUp() throws Exception {
+    public void setUp() {
         Map<String, Object> consumerProperties = KafkaTestUtils.consumerProps("email.test.fail", "false",
-                kafkaEmbedded);
+                embeddedKafkaBroker);
+        consumerProperties.put(ConsumerConfig.AUTO_OFFSET_RESET_CONFIG, "earliest");
         consumerProperties.put(ConsumerConfig.KEY_DESERIALIZER_CLASS_CONFIG, StringDeserializer.class);
         consumerProperties.put(ConsumerConfig.VALUE_DESERIALIZER_CLASS_CONFIG, EmailAvroDeserealizer.class);
-        ConsumerFactory<String, EmailAvro> objectObjectDefaultKafkaConsumerFactory = new DefaultKafkaConsumerFactory<>(consumerProperties);
-        failTopicManualConsumer = objectObjectDefaultKafkaConsumerFactory.createConsumer();
-        failTopicManualConsumer.subscribe(singleton(FAILED_TOPIC));
-        failTopicManualConsumer.poll(0);
-
-        for (MessageListenerContainer messageListenerContainer : kafkaListenerEndpointRegistry.getListenerContainers()) {
-            ContainerTestUtils.waitForAssignment(messageListenerContainer, kafkaEmbedded.getPartitionsPerTopic());
-        }
+        ConsumerFactory<String, EmailAvro> manualConsumerFactory = new DefaultKafkaConsumerFactory<>(consumerProperties);
+        failTopicManualConsumer = manualConsumerFactory.createConsumer();
+        failTopicManualConsumer.subscribe(singleton(failedTopic));
+        failTopicManualConsumer.poll(Duration.ZERO);
     }
 
     @After

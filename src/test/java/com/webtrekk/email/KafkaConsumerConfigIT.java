@@ -12,8 +12,8 @@ import org.springframework.context.annotation.Profile;
 import org.springframework.kafka.config.ConcurrentKafkaListenerContainerFactory;
 import org.springframework.kafka.core.ConsumerFactory;
 import org.springframework.kafka.core.DefaultKafkaConsumerFactory;
-import org.springframework.kafka.listener.AbstractMessageListenerContainer;
-import org.springframework.kafka.test.rule.KafkaEmbedded;
+import org.springframework.kafka.listener.ContainerProperties;
+import org.springframework.kafka.test.EmbeddedKafkaBroker;
 import org.springframework.kafka.test.utils.KafkaTestUtils;
 
 import java.util.Map;
@@ -24,11 +24,11 @@ import java.util.Map;
 public class KafkaConsumerConfigIT {
 
     @Autowired
-    private KafkaEmbedded kafkaEmbedded;
+    private EmbeddedKafkaBroker embeddedKafkaBroker;
 
     private ConsumerFactory<String, EmailAvro> emailConsumerFactory(String groupId) {
         log.info("[TEST]::creating emailConsumerFactory for groupId='{}'", groupId);
-        Map<String, Object> consumerProperties = KafkaTestUtils.consumerProps(groupId, "false", kafkaEmbedded);
+        Map<String, Object> consumerProperties = KafkaTestUtils.consumerProps(groupId, "false", embeddedKafkaBroker);
         consumerProperties.put(ConsumerConfig.KEY_DESERIALIZER_CLASS_CONFIG, StringDeserializer.class);
         consumerProperties.put(ConsumerConfig.VALUE_DESERIALIZER_CLASS_CONFIG, EmailAvroDeserealizer.class);
         return new DefaultKafkaConsumerFactory<>(consumerProperties);
@@ -39,7 +39,7 @@ public class KafkaConsumerConfigIT {
         ConcurrentKafkaListenerContainerFactory<String, EmailAvro> factory = new ConcurrentKafkaListenerContainerFactory<>();
         final String groupId = "email.test";
         factory.setConsumerFactory(emailConsumerFactory(groupId));
-        factory.getContainerProperties().setAckMode(AbstractMessageListenerContainer.AckMode.MANUAL_IMMEDIATE);
+        factory.getContainerProperties().setAckMode(ContainerProperties.AckMode.MANUAL_IMMEDIATE);
         log.info("[TEST]::created ConcurrentKafkaListenerContainerFactory['{}']", groupId);
         return factory;
     }
@@ -49,7 +49,7 @@ public class KafkaConsumerConfigIT {
         ConcurrentKafkaListenerContainerFactory<String, EmailAvro> factory = new ConcurrentKafkaListenerContainerFactory<>();
         final String groupId = "email.test.retry";
         factory.setConsumerFactory(emailConsumerFactory(groupId));
-        factory.getContainerProperties().setAckMode(AbstractMessageListenerContainer.AckMode.MANUAL_IMMEDIATE);
+        factory.getContainerProperties().setAckMode(ContainerProperties.AckMode.MANUAL_IMMEDIATE);
         log.info("[TEST]::created ConcurrentKafkaListenerContainerFactory['{}']", groupId);
         return factory;
     }
