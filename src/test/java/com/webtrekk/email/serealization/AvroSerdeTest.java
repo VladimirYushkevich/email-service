@@ -9,16 +9,14 @@ import java.util.Objects;
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertTrue;
 
-public class AvroSerealizationUnitTest {
+public class AvroSerdeTest {
 
-    private EmailAvroSerealizer emailAvroSerealizer;
-    private EmailAvroDeserealizer emailAvroDeserealizer;
+    private EmailAvroSerde emailAvroSerde;
     private EmailAvro emailAvro;
 
     @Before
     public void setUp() {
-        emailAvroSerealizer = new EmailAvroSerealizer();
-        emailAvroDeserealizer = new EmailAvroDeserealizer();
+        emailAvroSerde = new EmailAvroSerde();
 
         emailAvro = EmailAvro.newBuilder()
                 .setFrom("from")
@@ -30,15 +28,15 @@ public class AvroSerealizationUnitTest {
 
     @Test
     public void shouldSerializeEmailUsingBinaryEncoder() {
-        byte[] data = emailAvroSerealizer.serialize("", emailAvro);
+        byte[] data = emailAvroSerde.serializer().serialize("", emailAvro);
         assertTrue(Objects.nonNull(data));
         assertTrue(data.length > 0);
     }
 
     @Test
     public void shouldSerializeAndDeSerializeEmailUsingBinaryEncoder() {
-        byte[] data = emailAvroSerealizer.serialize("", emailAvro);
-        EmailAvro emailAvroActual = emailAvroDeserealizer.deserialize("", data);
+        byte[] data = emailAvroSerde.serializer().serialize("", emailAvro);
+        EmailAvro emailAvroActual = emailAvroSerde.deserializer().deserialize("", data);
 
         assertEquals(emailAvroActual, emailAvro);
     }

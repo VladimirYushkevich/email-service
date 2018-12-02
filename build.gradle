@@ -3,6 +3,7 @@ buildscript {
         springBootVersion = '2.1.1.RELEASE'
         swaggerVersion = '2.9.2'
         avroVersion = '1.8.2'
+        wiremockVersion = '2.19.0'
     }
     repositories {
         mavenCentral()
@@ -17,6 +18,7 @@ plugins {
 }
 
 apply plugin: 'java'
+apply plugin: 'eclipse'
 apply plugin: 'org.springframework.boot'
 apply plugin: 'io.spring.dependency-management'
 apply plugin: 'jacoco'
@@ -26,25 +28,36 @@ version = '0.0.1-SNAPSHOT'
 sourceCompatibility = 1.8
 
 repositories {
-    jcenter()
     mavenCentral()
-    maven {
-        url 'https://repo.spring.io/libs-milestone'
-    }
+    maven { url "https://repo.spring.io/milestone" }
 }
+
+ext['springCloudVersion'] = 'Greenwich.M3'
 
 dependencies {
     implementation('org.springframework.boot:spring-boot-starter-web')
-    implementation('org.apache.kafka:kafka-streams')
+//    implementation('org.springframework.cloud:spring-cloud-stream')
+    implementation('org.springframework.cloud:spring-cloud-stream-binder-kafka')
+//    implementation('org.springframework.cloud:spring-cloud-stream-binder-kafka-streams')
+    implementation('org.springframework.cloud:spring-cloud-stream-schema')
+    implementation('org.springframework.cloud:spring-cloud-stream-schema-server')
     implementation('org.springframework.kafka:spring-kafka')
     implementation("org.apache.avro:avro:${avroVersion}")
     implementation("io.springfox:springfox-swagger2:${swaggerVersion}")
     implementation("io.springfox:springfox-swagger-ui:${swaggerVersion}")
     implementation('org.projectlombok:lombok')
     annotationProcessor("org.projectlombok:lombok")
-    testImplementation('org.springframework.boot:spring-boot-starter-test')
+//    testImplementation('org.springframework.boot:spring-boot-starter-test')
+    testImplementation('org.springframework.cloud:spring-cloud-stream-test-support')
     testImplementation('org.springframework.kafka:spring-kafka-test')
+    testImplementation("com.github.tomakehurst:wiremock:${wiremockVersion}")
     testAnnotationProcessor("org.projectlombok:lombok")
+}
+
+dependencyManagement {
+    imports {
+        mavenBom "org.springframework.cloud:spring-cloud-dependencies:${springCloudVersion}"
+    }
 }
 
 avro {

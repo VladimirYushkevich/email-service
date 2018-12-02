@@ -1,0 +1,29 @@
+{
+  "subject": "emailavro",
+  "version": 2,
+  "id": 111,
+  "schema": {
+    "type": "record",
+    "name": "EmailAvro",
+    "namespace": "com.webtrekk.email.dto",
+    "fields": [
+      {
+        "name": "id",
+        "type": "string"
+      },
+      {
+        "name": "from",
+        "type": "string"
+      },
+      {
+        "name": "subject",
+        "type": "string"
+      },
+      {
+        "name": "retries",
+        "type": "int"
+      }
+    ]
+  },
+  "_topic": "emails-test"
+}

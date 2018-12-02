@@ -12,7 +12,7 @@ services:
     image: wurstmeister/kafka
     container_name: kafka
     ports:
-      - 9092:9092
+      - 9093:9093
     depends_on:
       - zookeeper
     links:
@@ -20,6 +20,16 @@ services:
     environment:
       KAFKA_ADVERTISED_HOST_NAME: localhost
       KAFKA_ZOOKEEPER_CONNECT: zookeeper:2181
-      KAFKA_CREATE_TOPICS: "Email:1:1"
+      KAFKA_PORT: 9093
+      KAFKA_ADVERTISED_PORT: 9093
     volumes:
       - /var/run/docker.sock:/var/run/docker.sock
+
+  schemaregistry:
+    image: confluent/schema-registry:latest
+    ports:
+      - "8081:8081"
+    links:
+      - zookeeper
+    environment:
+      KAFKA_ADVERTISED_LISTENERS=PLAINTEXT: PLAINTEXT://localhost:9093

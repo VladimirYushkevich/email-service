@@ -18,7 +18,7 @@ public class EmailDTO {
     @ApiModelProperty(notes = "Unique identifier for tracking a message")
     private String id;
     @NotNull
-    @ApiModelProperty(notes = "Email address from email should be sent")
+    @ApiModelProperty(notes = "Email address from email should be outboundEmails")
     private String from;
     @ApiModelProperty(notes = "Subject")
     private String subject;

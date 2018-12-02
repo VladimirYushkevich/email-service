@@ -1,0 +1,43 @@
+spring.cloud.stream.kafka.streams.bindings.emails-in:
+  consumer:
+    keySerde: org.apache.kafka.common.serialization.Serdes$StringSerde
+    valueSerde: com.webtrekk.email.serealization.EmailAvroSerde
+spring.cloud.stream.kafka.streams.bindings.emails-out:
+  consumer:
+    keySerde: org.apache.kafka.common.serialization.Serdes$LongSerde
+    valueSerde: com.webtrekk.email.serealization.EmailAvroSerde
+
+spring:
+  kafka:
+    consumer:
+      group-id: email-avro-stream
+      keySerde: org.apache.kafka.common.serialization.Serdes$StringSerde
+      valueSerde: com.webtrekk.email.serealization.EmailAvroSerde
+  cloud:
+    stream:
+      schemaRegistryClient:
+        port: 8081
+        endpoint: http://localhost:${spring.cloud.stream.schemaRegistryClient.port}
+      schema:
+        avro:
+          schema-locations: classpath:avro/email.avsc
+      bindings:
+        input:
+          destination: testEmbeddedIn
+          group: embeddedKafkaApplicationTest
+        output:
+          destination: testEmbeddedOut
+        emails-in:
+          destination: emails
+          contentType: application/*+avro
+          headerMode: raw
+          consumer:
+            headerMode: raw
+        emails-out:
+          destination: emails
+          contentType: application/*+avro
+          consumer:
+            headerMode: raw
+      kafka:
+        binder:
+          brokers: localhost:9093

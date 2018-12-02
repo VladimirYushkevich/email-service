@@ -38,7 +38,7 @@ docker-compose up
 ```
 ### The Task
 ```
-curl -X POST localhost:8080/api/v1/email -d '{"from": "from@example.com", "subject": "Subject"}' -H 'Content-Type: application/json' | jq
+curl -X POST localhost:8080/api/v1/email -d '{"from": "from@example.com", "subject": "Subject", "retries": 3}' -H 'Content-Type: application/json' | jq
 ```
 ### Usage:
 
