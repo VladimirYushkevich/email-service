@@ -19,7 +19,7 @@ docker-compose up
 docker-compose down
 docker-compose up -d --no-deps --build email-service
 ```
-### The Task
+### Example of requests
 ```
 curl -i -X POST 'http://localhost:8888/api/v1/email' \
 -H "accept: */*" \
