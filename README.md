@@ -32,8 +32,6 @@ curl -i -X POST 'http://localhost:8888/api/v1/email' \
 ```
 ### Usage:
 [SWAGGER](http://localhost:8888/swagger-ui.html)
-## License
-MIT
 ### Environment
 macOS Sierra (version 10.12.6)  
 java version "1.8.0_172"  
