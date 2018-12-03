@@ -31,10 +31,11 @@ public class EmailController {
     @Value(value = "${kafka.email.retry.cnt}")
     private Integer retries;
 
-    @RequestMapping(method = RequestMethod.POST, headers = {"content-type=multipart/mixed","content-type=multipart/form-data"})
+    @RequestMapping(method = RequestMethod.POST, headers = {"content-type=multipart/mixed", "content-type=multipart/form-data"})
     @ResponseStatus(HttpStatus.ACCEPTED)
     @ApiOperation(value = "method for sending new Mail")
-    public DeferredResult<String> send(@Valid @RequestPart(value = "email") EmailDTO email, @RequestPart(name = "file", required = false) MultipartFile file) {
+    public DeferredResult<String> send(@Valid @RequestPart(value = "email") EmailDTO email,
+                                       @RequestPart(name = "file", required = false) MultipartFile file) {
         log.info("::sending to message buffer {}", email);
 
 

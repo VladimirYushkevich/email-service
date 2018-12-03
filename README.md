@@ -21,17 +21,15 @@ docker-compose up -d --no-deps --build email-service
 ```
 ### The Task
 ```
-curl -X POST localhost:8888/api/v1/email -d '{"from": "from@example.com", "subject": "Subject"}' -H 'Content-Type: application/json'
 curl -i -X POST 'http://localhost:8888/api/v1/email' \
--H 'Content-type:multipart/mixed' \
--F 'file=@/Users/uyo1787/work/private/pet/email-service/docs/CodeChallenge_Java_SWAT_2018.pdf;type=application/pdf' \
--F 'email={
-  "from": "from@example.com",
-  "subject": "Subject"
-};type=application/json'
+-H "accept: */*" \
+-H "Content-Type: multipart/form-data" \
+-F 'file=@docs/CodeChallenge_Java_SWAT_2018.pdf;type=application/pdf' \
+-F 'email={"from": "from@example.com", "subject": "Subject"};type=application/json'
 ```
 ### Usage:
 [SWAGGER](http://localhost:8888/swagger-ui.html)
+[Multipart upload is not working(known issue)](https://github.com/springfox/springfox-demos/issues/40)
 ### Environment
 macOS Sierra (version 10.12.6)  
 java version "1.8.0_172"  
