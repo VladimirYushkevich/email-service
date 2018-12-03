@@ -28,7 +28,7 @@ curl -i -X POST 'http://localhost:8888/api/v1/email' \
 -F 'email={"from": "from@example.com", "subject": "Subject"};type=application/json'
 ```
 ### Usage:
-[SWAGGER](http://localhost:8888/swagger-ui.html)
+[SWAGGER](http://localhost:8888/swagger-ui.html)  
 [Multipart upload is not working(known issue)](https://github.com/springfox/springfox-demos/issues/40)
 ### Environment
 macOS Sierra (version 10.12.6)  
