@@ -18,6 +18,9 @@
     {
       "name": "retries",
       "type": "int"
+    },
+    { "name": "file",
+      "type": "string"
     }
   ]
 }

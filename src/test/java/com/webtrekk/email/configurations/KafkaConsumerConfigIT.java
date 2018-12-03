@@ -1,4 +1,4 @@
-package com.webtrekk.email;
+package com.webtrekk.email.configurations;
 
 import com.webtrekk.email.dto.EmailAvro;
 import com.webtrekk.email.serealization.EmailAvroDeserealizer;
@@ -47,7 +47,7 @@ public class KafkaConsumerConfigIT {
     @Bean
     public ConcurrentKafkaListenerContainerFactory<String, EmailAvro> emailRetryKafkaListenerContainerFactory() {
         ConcurrentKafkaListenerContainerFactory<String, EmailAvro> factory = new ConcurrentKafkaListenerContainerFactory<>();
-        final String groupId = "email.test.retry";
+        final String groupId = "email.test.sendToRetry";
         factory.setConsumerFactory(emailConsumerFactory(groupId));
         factory.getContainerProperties().setAckMode(ContainerProperties.AckMode.MANUAL_IMMEDIATE);
         log.info("[TEST]::created ConcurrentKafkaListenerContainerFactory['{}']", groupId);

@@ -13,33 +13,23 @@ URI pointing to the actual document binaries)
 - Queuing until successful response from SMTP Server. Max Retry configurable.
 - No Authentication required.
 
-### Run kafka container ([Instructions](http://wurstmeister.github.io/kafka-docker/))
-- You have installed Docker/Compose
-- Clone repo with docker files:
-```
-git clone https://github.com/wurstmeister/kafka-docker
-cd kafka-docker
-```
-- Edit `docker-compose.yml`:
-```
-environment:
-    KAFKA_ADVERTISED_HOST_NAME: docker.for.mac.localhost
-    KAFKA_CREATE_TOPICS: "Email:1:1"
-```
-  Expose port `9092` of `kafka` service to the host i.e. change it to `9092:9092`
-- Run kafka container:
-```
-docker-compose up
-```
-
 ### Run service:
 ```
-./gradlew clean build -i && java -jar build/libs/email-service-0.0.1-SNAPSHOT.jar
+docker-compose up
+docker-compose down
+docker-compose up -d --no-deps --build email-service
 ```
 ### The Task
 ```
-curl -X POST localhost:8080/api/v1/email -d '{"from": "from@example.com", "subject": "Subject"}' -H 'Content-Type: application/json' | jq
+curl -X POST localhost:8888/api/v1/email -d '{"from": "from@example.com", "subject": "Subject"}' -H 'Content-Type: application/json'
+curl -i -X POST 'http://localhost:8888/api/v1/email' \
+-H 'Content-type:multipart/mixed' \
+-F 'file=@/Users/uyo1787/work/private/pet/email-service/docs/CodeChallenge_Java_SWAT_2018.pdf;type=application/pdf' \
+-F 'email={
+  "from": "from@example.com",
+  "subject": "Subject"
+};type=application/json'
 ```
 ### Usage:
 
-[SWAGGER](http://localhost:8080/swagger-ui.html)
+[SWAGGER](http://localhost:8888/swagger-ui.html)

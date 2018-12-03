@@ -1,4 +1,4 @@
-package com.webtrekk.email;
+package com.webtrekk.email.configurations;
 
 import com.webtrekk.email.dto.EmailAvro;
 import com.webtrekk.email.serealization.EmailAvroSerealizer;
@@ -26,7 +26,7 @@ public class KafkaProducerConfig {
 
     @Bean
     public ProducerFactory<String, EmailAvro> emailProducerFactory() {
-        log.info("::creating emailProducerFactory");
+        log.info("::creating emailProducerFactory, kafkaHost={}", kafkaHost);
         Map<String, Object> producerProperties = new HashMap<>();
         producerProperties.put(ProducerConfig.BOOTSTRAP_SERVERS_CONFIG, kafkaHost);
         producerProperties.put(ProducerConfig.KEY_SERIALIZER_CLASS_CONFIG, StringSerializer.class);

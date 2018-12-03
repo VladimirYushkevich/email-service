@@ -6,6 +6,7 @@ import com.webtrekk.email.services.EmailService;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Component;
+import org.springframework.web.multipart.MultipartFile;
 
 @Component
 @RequiredArgsConstructor
@@ -15,8 +16,8 @@ public class EmailServiceImpl implements EmailService {
     private final SMTPClient emailClient;
 
     @Override
-    public void send(EmailDTO message) {
-        log.info("::sending email={} to SMTPClient", message);
-        emailClient.sendEmail(message);
+    public void send(EmailDTO message, MultipartFile file) {
+        log.info("::sending email={} with attachment='{}' to SMTPClient", message, file);
+        emailClient.sendEmail(message, file);
     }
 }

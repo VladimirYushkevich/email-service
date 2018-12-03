@@ -26,20 +26,20 @@ public class EmailServiceImplTest {
 
     @Test
     public void shouldSendEmailWithoutRetries() {
-        doNothing().when(emailClientMock).sendEmail(any());
+        doNothing().when(emailClientMock).sendEmail(any(), any());
 
-        emailService.send(any());
+        emailService.send(any(), any());
 
-        verify(emailClientMock, times(1)).sendEmail(any());
+        verify(emailClientMock, times(1)).sendEmail(any(), any());
     }
 
     @Test(expected = RuntimeException.class)
     public void shouldUseRetryDuringException() {
-        doThrow(new RuntimeException("from IT")).when(emailClientMock).sendEmail(any());
+        doThrow(new RuntimeException("from IT")).when(emailClientMock).sendEmail(any(), any());
 
-        emailService.send(any());
+        emailService.send(any(), any());
 
-        verify(emailClientMock, times(2)).sendEmail(any());
+        verify(emailClientMock, times(2)).sendEmail(any(), any());
     }
 
 }

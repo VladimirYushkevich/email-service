@@ -1,4 +1,4 @@
-package com.webtrekk.email;
+package com.webtrekk.email.configurations;
 
 import com.webtrekk.email.dto.EmailAvro;
 import com.webtrekk.email.serealization.EmailAvroSerealizer;

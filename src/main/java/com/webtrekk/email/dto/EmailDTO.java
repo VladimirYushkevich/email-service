@@ -15,32 +15,26 @@ import java.util.UUID;
 @AllArgsConstructor
 @NoArgsConstructor
 public class EmailDTO {
-    @ApiModelProperty(notes = "Unique identifier for tracking a message")
-    private String id;
     @NotNull
     @ApiModelProperty(notes = "Email address from email should be sent")
     private String from;
     @ApiModelProperty(notes = "Subject")
     private String subject;
-    @NotNull
-    @ApiModelProperty(notes = "Number of retry attempts")
-    private Integer retries;
 
-    public EmailAvro toAvro() {
+    public EmailAvro toAvro(Integer retries, String encodedFile) {
         return EmailAvro.newBuilder()
                 .setId(UUID.randomUUID().toString())
                 .setFrom(from)
                 .setSubject(Optional.ofNullable(subject).orElse(""))
                 .setRetries(retries)
+                .setFile(encodedFile)
                 .build();
     }
 
     public static EmailDTO fromAvro(EmailAvro avro) {
         return EmailDTO.builder()
-                .id(avro.getId())
                 .from(avro.getFrom())
                 .subject(avro.getSubject())
-                .retries(avro.getRetries())
                 .build();
     }
 }

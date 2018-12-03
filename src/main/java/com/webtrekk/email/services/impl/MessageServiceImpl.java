@@ -4,12 +4,14 @@ import com.webtrekk.email.dto.EmailAvro;
 import com.webtrekk.email.dto.EmailDTO;
 import com.webtrekk.email.services.EmailService;
 import com.webtrekk.email.services.MessageService;
+import com.webtrekk.email.utils.FileUtils;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.kafka.core.KafkaTemplate;
-import org.springframework.kafka.support.Acknowledgment;
+import org.springframework.kafka.support.SendResult;
 import org.springframework.stereotype.Component;
+import org.springframework.util.concurrent.ListenableFuture;
 
 @Component
 @RequiredArgsConstructor
@@ -27,32 +29,31 @@ public class MessageServiceImpl implements MessageService {
     private String failTopicName;
 
     @Override
-    public void produce(EmailAvro message) {
+    public ListenableFuture<SendResult<String, EmailAvro>> produce(EmailAvro message) {
         log.debug("::producing to [topicName/message]: [{}/{}]", topicName, message);
-        emailKafkaTemplate.send(topicName, message);
+        return emailKafkaTemplate.send(topicName, message);
     }
 
     @Override
-    public void consume(EmailAvro message, Acknowledgment acknowledgment) {
-        log.debug("::consuming message: {}, ack: {}", message, acknowledgment);
+    public void consume(EmailAvro message) {
+        log.debug("::consuming message: {}", message);
 
-        sendOrRetry(message, acknowledgment);
+        sendOrRetry(message);
     }
 
     @Override
-    public void retry(EmailAvro message, Acknowledgment acknowledgment) {
-        log.debug("::retrying message: {}, ack: {}", message, acknowledgment);
+    public void sendToRetry(EmailAvro message) {
+        log.debug("::retrying message: {}", message);
 
-        sendOrRetry(message, acknowledgment);
+        sendOrRetry(message);
     }
 
-    private void sendOrRetry(EmailAvro message, Acknowledgment acknowledgment) {
+    private void sendOrRetry(EmailAvro message) {
         try {
-            emailService.send(EmailDTO.fromAvro(message));
-            acknowledgment.acknowledge();
-            log.debug("::acknowledged message: {}, ack: {}", message, acknowledgment);
+            emailService.send(EmailDTO.fromAvro(message), FileUtils.decode(message.getFile()));
+            log.debug("::acknowledged message: {}", message);
         } catch (Exception exception) {
-            log.warn("::reason for retry", exception);
+            log.warn("::reason for sendToRetry", exception);
             retry(message);
         }
     }

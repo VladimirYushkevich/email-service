@@ -1,4 +1,4 @@
-package com.webtrekk.email;
+package com.webtrekk.email.configurations;
 
 import com.webtrekk.email.dto.EmailAvro;
 import com.webtrekk.email.serealization.EmailAvroDeserealizer;
@@ -27,7 +27,7 @@ public class KafkaConsumerConfig {
     private String bootstrapAddress;
 
     private ConsumerFactory<String, EmailAvro> emailConsumerFactory(String groupId) {
-        log.info("::creating emailConsumerFactory for groupId='{}'", groupId);
+        log.info("::creating emailConsumerFactory for groupId='{}', {}", groupId, bootstrapAddress);
         Map<String, Object> consumerProperties = new HashMap<>();
         consumerProperties.put(ConsumerConfig.BOOTSTRAP_SERVERS_CONFIG, bootstrapAddress);
         consumerProperties.put(ConsumerConfig.GROUP_ID_CONFIG, groupId);

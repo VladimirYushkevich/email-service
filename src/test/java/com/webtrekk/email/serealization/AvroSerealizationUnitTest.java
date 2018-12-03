@@ -24,6 +24,7 @@ public class AvroSerealizationUnitTest {
                 .setFrom("from")
                 .setSubject("subject")
                 .setId("id")
+                .setFile("encodedFile")
                 .setRetries(3)
                 .build();
     }
