@@ -13,33 +13,25 @@ URI pointing to the actual document binaries)
 - Queuing until successful response from SMTP Server. Max Retry configurable.
 - No Authentication required.
 
-### Run kafka container ([Instructions](http://wurstmeister.github.io/kafka-docker/))
-- You have installed Docker/Compose
-- Clone repo with docker files:
-```
-git clone https://github.com/wurstmeister/kafka-docker
-cd kafka-docker
-```
-- Edit `docker-compose.yml`:
-```
-environment:
-    KAFKA_ADVERTISED_HOST_NAME: docker.for.mac.localhost
-    KAFKA_CREATE_TOPICS: "Email:1:1"
-```
-  Expose port `9092` of `kafka` service to the host i.e. change it to `9092:9092`
-- Run kafka container:
-```
-docker-compose up
-```
-
 ### Run service:
 ```
-./gradlew clean build -i && java -jar build/libs/email-service-0.0.1-SNAPSHOT.jar
+docker-compose up
+docker-compose down
+docker-compose up -d --no-deps --build email-service
 ```
-### The Task
+### Example of requests
 ```
-curl -X POST localhost:8080/api/v1/email -d '{"from": "from@example.com", "subject": "Subject", "retries": 3}' -H 'Content-Type: application/json' | jq
+curl -i -X POST 'http://localhost:8888/api/v1/email' \
+-H "accept: */*" \
+-H "Content-Type: multipart/form-data" \
+-F 'file=@docs/CodeChallenge_Java_SWAT_2018.pdf;type=application/pdf' \
+-F 'email={"from": "from@example.com", "subject": "Subject"};type=application/json'
 ```
 ### Usage:
-
-[SWAGGER](http://localhost:8080/swagger-ui.html)
+[SWAGGER](http://localhost:8888/swagger-ui.html)  
+Multipart upload is not working [(known issue)](https://github.com/springfox/springfox-demos/issues/40)
+### Environment
+macOS Sierra (version 10.12.6)  
+java version "1.8.0_172"  
+Java(TM) SE Runtime Environment (build 1.8.0_172-b11)  
+Java HotSpot(TM) 64-Bit Server VM (build 25.172-b11, mixed mode)  
