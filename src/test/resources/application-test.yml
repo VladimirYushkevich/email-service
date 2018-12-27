@@ -1,24 +1,48 @@
+email.retries: 3
 spring:
   kafka:
     consumer:
       group-id: email-avro-stream-test
-      keySerde: org.apache.kafka.common.serialization.Serdes$StringSerde
-      valueSerde: com.webtrekk.email.serealization.EmailAvroSerde
   cloud:
     stream:
-      schemaRegistryClient:
-        port: 8990
-        endpoint: http://localhost:${spring.cloud.stream.schemaRegistryClient.port}
+      schema-registry-client:
+        endpoint: http://localhost:8082
       bindings:
-        input:
-          destination: testEmbeddedIn
-          group: embeddedKafkaApplicationTest
-        output:
-          destination: testEmbeddedOut
-        emails-in:
-          destination: emails-test
         emails-out:
           destination: emails-test
+        emails-in:
+          destination: emails-test
+        emails-send-out:
+          destination: emails-send-test
+        emails-send-in:
+          destination: emails-send-test
+        emails-retry-out:
+          destination: emails-retry-test
+        emails-retry-in:
+          destination: emails-retry-test
+        emails-count-out:
+          destination: emails-count-test
+        emails-count-in:
+          destination: emails-count-test
+        emails-store-out:
+          destination: emails-store-test
+        emails-store-in:
+          destination: emails-store-test
       kafka:
-        binder:
-          brokers: localhost
+        streams:
+          bindings:
+            emails-in:
+              consumer:
+                application-id: emails-listener-test
+            emails-send-in:
+              consumer:
+                application-id: emails-send-listener-test
+            emails-retry-in:
+              consumer:
+                application-id: emails-retry-listener-test
+            emails-count-in:
+              consumer:
+                application-id: emails-count-listener-test
+            emails-store-in:
+              consumer:
+                application-id: emails-store-listener-test

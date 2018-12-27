@@ -1,43 +1,74 @@
-spring.cloud.stream.kafka.streams.bindings.emails-in:
-  consumer:
-    keySerde: org.apache.kafka.common.serialization.Serdes$StringSerde
-    valueSerde: com.webtrekk.email.serealization.EmailAvroSerde
-spring.cloud.stream.kafka.streams.bindings.emails-out:
-  consumer:
-    keySerde: org.apache.kafka.common.serialization.Serdes$LongSerde
-    valueSerde: com.webtrekk.email.serealization.EmailAvroSerde
-
+email.retries: 2
 spring:
+  application:
+    name: email-service
   kafka:
     consumer:
       group-id: email-avro-stream
-      keySerde: org.apache.kafka.common.serialization.Serdes$StringSerde
-      valueSerde: com.webtrekk.email.serealization.EmailAvroSerde
+    bootstrap-servers: localhost:29092
   cloud:
     stream:
-      schemaRegistryClient:
-        port: 8081
-        endpoint: http://localhost:${spring.cloud.stream.schemaRegistryClient.port}
       schema:
         avro:
-          schema-locations: classpath:avro/email.avsc
+          dynamic-schema-generation-enabled: true
+      schema-registry-client:
+        endpoint: http://localhost:8081
       bindings:
-        input:
-          destination: testEmbeddedIn
-          group: embeddedKafkaApplicationTest
-        output:
-          destination: testEmbeddedOut
-        emails-in:
-          destination: emails
-          contentType: application/*+avro
-          headerMode: raw
-          consumer:
-            headerMode: raw
         emails-out:
           destination: emails
           contentType: application/*+avro
+        emails-in:
+          destination: emails
+          contentType: application/*+avro
+        emails-send-out:
+          destination: emails-send
+          contentType: application/*+avro
+        emails-send-in:
+          destination: emails-send
+          contentType: application/*+avro
+        emails-retry-out:
+          destination: emails-retry
+          contentType: application/*+avro
+        emails-retry-in:
+          destination: emails-retry
+          contentType: application/*+avro
+        emails-count-out:
+          destination: emails-count
+          contentType: application/*+avro
+        emails-count-in:
+          destination: emails-count
+          contentType: application/*+avro
+        emails-store-out:
+          destination: emails-store
+          producer:
+            use-native-encoding: true
+        emails-store-in:
+          destination: emails-store
           consumer:
-            headerMode: raw
+            use-native-decoding: true
       kafka:
         binder:
-          brokers: localhost:9093
+          brokers: localhost
+        streams:
+          binder:
+            configuration:
+              commit.interval.ms: 1000
+              default.key.serde: org.apache.kafka.common.serialization.Serdes$StringSerde
+              default.value.serde: org.apache.kafka.common.serialization.Serdes$LongSerde
+            serde-error: logandcontinue
+          bindings:
+            emails-in:
+              consumer:
+                application-id: emails-listener
+            emails-send-in:
+              consumer:
+                application-id: emails-send-listener
+            emails-retry-in:
+              consumer:
+                application-id: emails-retry-listener
+            emails-count-in:
+              consumer:
+                application-id: emails-count-listener
+            emails-store-in:
+              consumer:
+                application-id: emails-store-listener

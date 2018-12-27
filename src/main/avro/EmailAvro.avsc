@@ -17,7 +17,13 @@
     },
     {
       "name": "retries",
-      "type": "int"
+      "type": "int",
+      "default": 0
+    },
+    {
+      "name": "success",
+      "type": "boolean",
+      "default": false
     }
   ]
 }

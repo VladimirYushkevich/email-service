@@ -8,7 +8,8 @@ import org.springframework.stereotype.Component;
 @Slf4j
 public class SMTPClient {
 
-    public void sendEmail(EmailDTO emailDTO) {
+    public boolean sendEmail(EmailDTO emailDTO) {
         log.info("::sending email via dummy client: {}", emailDTO);
+        return System.currentTimeMillis() % 2 == 0;
     }
 }

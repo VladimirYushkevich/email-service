@@ -1,8 +1,8 @@
 package com.webtrekk.email.services;
 
-import com.webtrekk.email.dto.EmailDTO;
+import com.webtrekk.email.dto.EmailAvro;
 
 public interface EmailService {
 
-    void send(EmailDTO message);
+    EmailAvro send(EmailAvro message);
 }

@@ -2,14 +2,13 @@ package com.webtrekk.email.services;
 
 import com.webtrekk.email.dto.EmailAvro;
 
+import java.util.Map;
+
 public interface MessageService {
 
-    //    @SendTo(EmailChannels.EMAIL_OUTPUT)
-    void produce(EmailAvro message);
+    String send(EmailAvro message);
 
-    //    @KafkaListener(topics = "${kafka.email.topic.name}", containerFactory = "emailKafkaListenerContainerFactory")
-//    void consume(EmailAvro message);
+    Map<String, Long> stats();
 
-    //    @KafkaListener(topics = "${kafka.email.retry.topic.name}", containerFactory = "emailRetryKafkaListenerContainerFactory")
-    void retry(EmailAvro message);
+    String status(String id);
 }

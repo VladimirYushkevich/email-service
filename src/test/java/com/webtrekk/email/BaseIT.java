@@ -2,15 +2,23 @@ package com.webtrekk.email;
 
 import com.github.tomakehurst.wiremock.junit.WireMockClassRule;
 import com.webtrekk.email.client.SMTPClient;
-import com.webtrekk.email.messaging.EmailChannels;
+import kafka.server.KafkaServer;
+import org.apache.kafka.common.utils.Bytes;
+import org.apache.kafka.streams.KeyValue;
+import org.apache.kafka.streams.state.KeyValueIterator;
+import org.apache.kafka.streams.state.KeyValueStore;
 import org.junit.After;
 import org.junit.Before;
 import org.junit.BeforeClass;
 import org.junit.ClassRule;
 import org.junit.runner.RunWith;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.boot.test.web.client.TestRestTemplate;
+import org.springframework.cloud.stream.binder.kafka.streams.InteractiveQueryService;
+import org.springframework.context.annotation.Import;
+import org.springframework.kafka.test.EmbeddedKafkaBroker;
 import org.springframework.kafka.test.rule.EmbeddedKafkaRule;
 import org.springframework.test.context.ActiveProfiles;
 import org.springframework.test.context.junit4.SpringRunner;
@@ -22,7 +30,6 @@ import java.io.InputStreamReader;
 
 import static com.github.tomakehurst.wiremock.client.WireMock.*;
 import static com.github.tomakehurst.wiremock.core.WireMockConfiguration.options;
-import static org.mockito.Mockito.reset;
 
 @RunWith(SpringRunner.class)
 @SpringBootTest(
@@ -30,14 +37,12 @@ import static org.mockito.Mockito.reset;
                 "spring.autoconfigure.exclude=org.springframework.cloud.stream.test.binder.TestSupportBinderAutoConfiguration"
         },
         webEnvironment = SpringBootTest.WebEnvironment.RANDOM_PORT)
-//@DirtiesContext
-//@EnableKafka
-//@EmbeddedKafka
+@Import(ConfigIT.class)
 @ActiveProfiles("test")
 public abstract class BaseIT {
 
     @ClassRule
-    public static WireMockClassRule wiremock = new WireMockClassRule(options().port(8990));
+    public static WireMockClassRule wiremock = new WireMockClassRule(options().port(8082));
 
     @Autowired
     protected SMTPClient emailClientMock;
@@ -45,63 +50,58 @@ public abstract class BaseIT {
     @Autowired
     protected TestRestTemplate template;
 
-//    @Value(value = "${kafka.email.fail.topic.name}")
-//    protected String failedTopic;
-
-//    @Autowired
-//    protected TestSupportBinder testSupportBinder;
+    @Autowired
+    protected InteractiveQueryService interactiveQueryServiceMock;
 
     @Autowired
-    private EmailChannels emailChannels;
+    @Qualifier("keyValueStoreCount")
+    protected KeyValueStore<Bytes, byte[]> keyValueStoreCount;
 
-//    protected Consumer<String, EmailAvro> failTopicManualConsumer;
-//
-//    @Autowired
-//    protected EmbeddedKafkaBroker embeddedKafkaBroker;
+    @Autowired
+    @Qualifier("keyValueStoreStatus")
+    protected KeyValueStore<Bytes, byte[]> keyValueStoreStatus;
 
     @ClassRule
-    public static EmbeddedKafkaRule embeddedKafkaRule = new EmbeddedKafkaRule(1, true);
+    public static EmbeddedKafkaRule embeddedKafkaRule = new EmbeddedKafkaRule(1, false);
+
+    private static EmbeddedKafkaBroker embeddedKafka = embeddedKafkaRule.getEmbeddedKafka();
 
     @BeforeClass
     public static void setup() {
-        System.setProperty("spring.kafka.bootstrap-servers", embeddedKafkaRule.getEmbeddedKafka().getBrokersAsString());
+        System.setProperty("spring.kafka.bootstrap-servers", embeddedKafka.getBrokersAsString());
     }
 
     @Before
     public void setUp() throws Exception {
-//        testSupportBinder.messageCollector().forChannel(emailChannels.inboundEmails()).clear();
+        cleanupStore(keyValueStoreCount);
+        cleanupStore(keyValueStoreStatus);
         stub();
-//        Map<String, Object> consumerProperties = KafkaTestUtils.consumerProps("email.test.fail", "false",
-//                embeddedKafkaBroker);
-//        consumerProperties.put(ConsumerConfig.AUTO_OFFSET_RESET_CONFIG, "earliest");
-//        consumerProperties.put(ConsumerConfig.KEY_DESERIALIZER_CLASS_CONFIG, StringDeserializer.class);
-//        consumerProperties.put(ConsumerConfig.VALUE_DESERIALIZER_CLASS_CONFIG, EmailAvroDeserealizer.class);
-//        ConsumerFactory<String, EmailAvro> manualConsumerFactory = new DefaultKafkaConsumerFactory<>(consumerProperties);
-//        failTopicManualConsumer = manualConsumerFactory.createConsumer();
-//        failTopicManualConsumer.subscribe(singleton(failedTopic));
-//        failTopicManualConsumer.poll(Duration.ZERO);
+    }
+
+    private void cleanupStore(KeyValueStore<Bytes, byte[]> store) {
+        final KeyValueIterator<Bytes, byte[]> keyValueIterator = store.all();
+        while (keyValueIterator.hasNext()) {
+            final KeyValue<Bytes, byte[]> keyValue = keyValueIterator.next();
+            store.delete(keyValue.key);
+        }
+        store.flush();
     }
 
     private void stub() throws Exception {
         final String schemaJson = readFromInputStream(getClass().getResourceAsStream("/avro/emailavro-schema.json"));
+        final String schemaJsonStringified = readFromInputStream(getClass().getResourceAsStream("/avro/emailavro-schema-string.json"));
         wiremock.stubFor(post(urlEqualTo("/subjects/emailavro/versions"))
                 .willReturn(aResponse()
                         .withHeader("Content-Type", "application/json")
-                        .withBody("{\"id\":111}")));
+                        .withBody("{\"id\": 111}")));
         wiremock.stubFor(post(urlEqualTo("/subjects/emailavro"))
                 .willReturn(aResponse()
                         .withHeader("Content-Type", "application/json")
                         .withBody(schemaJson)));
         wiremock.stubFor(get(urlEqualTo("/subjects/emailavro/versions/2"))
                 .willReturn(aResponse()
-                        .withHeader("Content-Type", "application/json")
-                        .withBody(schemaJson)));
-    }
-
-    @After
-    public void tearDown() {
-        reset(emailClientMock);
-//        failTopicManualConsumer.close();
+                        .withHeader("Content-Type", "application/vnd.schemaregistry.v1+json")
+                        .withBody(schemaJsonStringified)));
     }
 
     private String readFromInputStream(InputStream inputStream) throws IOException {
@@ -113,5 +113,11 @@ public abstract class BaseIT {
             }
         }
         return resultStringBuilder.toString();
+    }
+
+    @After
+    public void tearDown() {
+        embeddedKafka.getKafkaServers().forEach(KafkaServer::shutdown);
+        embeddedKafka.getKafkaServers().forEach(KafkaServer::awaitShutdown);
     }
 }

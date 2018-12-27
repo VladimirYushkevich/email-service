@@ -18,20 +18,20 @@ public class EmailDTO {
     @ApiModelProperty(notes = "Unique identifier for tracking a message")
     private String id;
     @NotNull
-    @ApiModelProperty(notes = "Email address from email should be outboundEmails")
+    @ApiModelProperty(notes = "Email address from email should be outbound")
     private String from;
     @ApiModelProperty(notes = "Subject")
     private String subject;
     @NotNull
     @ApiModelProperty(notes = "Number of retry attempts")
     private Integer retries;
+    private boolean success;
 
     public EmailAvro toAvro() {
         return EmailAvro.newBuilder()
                 .setId(UUID.randomUUID().toString())
                 .setFrom(from)
                 .setSubject(Optional.ofNullable(subject).orElse(""))
-                .setRetries(retries)
                 .build();
     }
 
@@ -41,6 +41,7 @@ public class EmailDTO {
                 .from(avro.getFrom())
                 .subject(avro.getSubject())
                 .retries(avro.getRetries())
+                .success(avro.getSuccess())
                 .build();
     }
 }
