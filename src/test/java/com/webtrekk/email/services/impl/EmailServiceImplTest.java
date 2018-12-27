@@ -32,39 +32,39 @@ public class EmailServiceImplTest {
 
     @Test
     public void shouldSendEmailWithoutRetries() {
-        when(emailClientMock.sendEmail(any())).thenReturn(true);
+        when(emailClientMock.sendEmail(any(), any())).thenReturn(true);
 
         final EmailAvro emailAvro = emailService.send(EmailAvro.newBuilder(getEmailAvroEvent())
                 .setRetries(3)
                 .build());
 
-        verify(emailClientMock, times(1)).sendEmail(any());
+        verify(emailClientMock, times(1)).sendEmail(any(), any());
         assertTrue(emailAvro.getSuccess());
         assertThat(emailAvro.getRetries(), is(2));
     }
 
     @Test
     public void shouldUseRetryDuringException() {
-        when(emailClientMock.sendEmail(any())).thenThrow(new RuntimeException("from Test"));
+        when(emailClientMock.sendEmail(any(), any())).thenThrow(new RuntimeException("from Test"));
 
         final EmailAvro emailAvro = emailService.send(EmailAvro.newBuilder(getEmailAvroEvent())
                 .setRetries(3)
                 .build());
 
-        verify(emailClientMock, times(1)).sendEmail(any());
+        verify(emailClientMock, times(1)).sendEmail(any(), any());
         assertFalse(emailAvro.getSuccess());
         assertThat(emailAvro.getRetries(), is(2));
     }
 
     @Test
     public void shouldUseRetryAfterFail() {
-        when(emailClientMock.sendEmail(any())).thenReturn(false);
+        when(emailClientMock.sendEmail(any(), any())).thenReturn(false);
 
         final EmailAvro emailAvro = emailService.send(EmailAvro.newBuilder(getEmailAvroEvent())
                 .setRetries(3)
                 .build());
 
-        verify(emailClientMock, times(1)).sendEmail(any());
+        verify(emailClientMock, times(1)).sendEmail(any(), any());
         assertFalse(emailAvro.getSuccess());
         assertThat(emailAvro.getRetries(), is(2));
     }

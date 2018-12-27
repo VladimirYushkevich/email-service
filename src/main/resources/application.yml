@@ -1,18 +1,28 @@
+server.port: 8888
 email.retries: 2
+swagger.email:
+  title: email-service
+  description: MicroService responsible of Asynchronous sending of Emails
+  version: 1.1
+  licenseUrl: https://www.apache.org/licenses/LICENSE-2.0
+  contact:
+    name: Vladimir Yushkevich
+    url: https://github.com/VladimirYushkevich
+    email: yushkevich.vladimir@gmail.com
 spring:
   application:
     name: email-service
   kafka:
     consumer:
       group-id: email-avro-stream
-    bootstrap-servers: localhost:29092
+    bootstrap-servers: kafka:9092
   cloud:
     stream:
       schema:
         avro:
           dynamic-schema-generation-enabled: true
       schema-registry-client:
-        endpoint: http://localhost:8081
+        endpoint: http://schema-registry:8081
       bindings:
         emails-out:
           destination: emails
@@ -48,7 +58,7 @@ spring:
             use-native-decoding: true
       kafka:
         binder:
-          brokers: localhost
+          brokers: kafka
         streams:
           binder:
             configuration:

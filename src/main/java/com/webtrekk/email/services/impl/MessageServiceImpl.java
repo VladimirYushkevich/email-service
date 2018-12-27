@@ -34,7 +34,7 @@ public class MessageServiceImpl implements MessageService {
     }
 
     @Override
-    public Map<String, Long> stats() {
+    public Map<String, Long> counts() {
         Map<String, Long> counts = new HashMap<>();
         ReadOnlyKeyValueStore<String, Long> store;
         KeyValueIterator<String, Long> keyValueIterator = null;
@@ -43,10 +43,11 @@ public class MessageServiceImpl implements MessageService {
             keyValueIterator = store.all();
             while (keyValueIterator.hasNext()) {
                 final KeyValue<String, Long> keyValue = keyValueIterator.next();
+                log.info("::keyValue: {}", keyValue);
                 counts.put(keyValue.key, keyValue.value);
             }
-        } catch (InterruptedException e) {
-            log.error("can't retrieve store");
+        } catch (Exception e) {
+            log.error("can't iterate in store, reason: ", e);
         } finally {
             if (nonNull(keyValueIterator)) {
                 log.debug("::close store iterator");
@@ -65,8 +66,8 @@ public class MessageServiceImpl implements MessageService {
             store = waitUntilStoreIsQueryable(interactiveQueryService, EmailChannels.STATUS_MV, QueryableStoreTypes.keyValueStore());
             value = store.get(id);
             log.info("::found {}", value);
-        } catch (InterruptedException e) {
-            log.error("can't retrieve store");
+        } catch (Exception e) {
+            log.error("can't find in store by id={}, reason: ", e);
         }
         return booleanStringFrom(value);
     }

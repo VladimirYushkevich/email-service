@@ -2,5 +2,5 @@
   "subject": "emailavro",
   "version": 1,
   "id": 1,
-  "schema":"{\"type\":\"record\",\"name\":\"EmailAvro\",\"namespace\":\"com.webtrekk.email.dto\",\"fields\":[{\"name\":\"id\",\"type\":{\"type\":\"string\",\"avro.java.string\":\"String\"}},{\"name\":\"from\",\"type\":{\"type\":\"string\",\"avro.java.string\":\"String\"}},{\"name\":\"subject\",\"type\":{\"type\":\"string\",\"avro.java.string\":\"String\"}},{\"name\":\"retries\",\"type\":\"int\",\"default\":0},{\"name\":\"success\",\"type\":\"boolean\",\"default\":false}]}"
+  "schema":"{\"type\":\"record\",\"name\":\"EmailAvro\",\"namespace\":\"com.webtrekk.email.dto\",\"fields\":[{\"name\":\"id\",\"type\":{\"type\":\"string\",\"avro.java.string\":\"String\"}},{\"name\":\"from\",\"type\":{\"type\":\"string\",\"avro.java.string\":\"String\"}},{\"name\":\"subject\",\"type\":{\"type\":\"string\",\"avro.java.string\":\"String\"}},{\"name\":\"retries\",\"type\":\"int\",\"default\":0},{\"name\":\"success\",\"type\":\"boolean\",\"default\":false},{\"name\":\"file\",\"type\":\"string\"}]}"
 }

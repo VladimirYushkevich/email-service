@@ -4,6 +4,7 @@ import com.webtrekk.email.client.SMTPClient;
 import com.webtrekk.email.dto.EmailAvro;
 import com.webtrekk.email.dto.EmailDTO;
 import com.webtrekk.email.services.EmailService;
+import com.webtrekk.email.utils.FileUtils;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Component;
@@ -22,7 +23,7 @@ public class EmailServiceImpl implements EmailService {
         log.info("::sending email {}", email);
         final EmailAvro.Builder builder = EmailAvro.newBuilder(message)
                 .setRetries(message.getRetries() - 1);
-        if (sendSafe(email)) {
+        if (sendSafe(email, FileUtils.decode(message.getFile()))) {
             log.info("::successfully sent email={} to SMTPClient", email);
             return builder
                     .setSuccess(true)
@@ -33,10 +34,10 @@ public class EmailServiceImpl implements EmailService {
         return builder.build();
     }
 
-    private boolean sendSafe(EmailDTO email) {
+    private boolean sendSafe(EmailDTO email, MultipartFile file) {
         boolean res = false;
         try {
-            res = emailClient.sendEmail(email);
+            res = emailClient.sendEmail(email, file);
         } catch (Exception e) {
             log.error("exception during send, reason {}", e);
         }

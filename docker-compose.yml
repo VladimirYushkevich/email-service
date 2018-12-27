@@ -10,10 +10,10 @@ services:
       ZOOKEEPER_CLIENT_PORT: 2181
       ZOOKEEPER_TICK_TIME: 2000
 
-  broker:
+  kafka:
     image: confluentinc/cp-kafka:5.0.0
-    container_name: broker
-    hostname: broker
+    container_name: kafka
+    hostname: kafka
     depends_on:
       - zookeeper
     ports:
@@ -23,7 +23,7 @@ services:
       KAFKA_BROKER_ID: 1
       KAFKA_ZOOKEEPER_CONNECT: 'zookeeper:2181'
       KAFKA_LISTENER_SECURITY_PROTOCOL_MAP: PLAINTEXT:PLAINTEXT,PLAINTEXT_HOST:PLAINTEXT
-      KAFKA_ADVERTISED_LISTENERS: PLAINTEXT://broker:9092,PLAINTEXT_HOST://localhost:29092
+      KAFKA_ADVERTISED_LISTENERS: PLAINTEXT://kafka:9092,PLAINTEXT_HOST://localhost:29092
       KAFKA_OFFSETS_TOPIC_REPLICATION_FACTOR: 1
       KAFKA_GROUP_INITIAL_REBALANCE_DELAY_MS: 0
 
@@ -33,7 +33,7 @@ services:
     hostname: schema-registry
     depends_on:
       - zookeeper
-      - broker
+      - kafka
     ports:
       - 8081:8081
     environment:
@@ -49,6 +49,7 @@ services:
     depends_on:
       - kafka
       - zookeeper
+      - schema-registry
     links:
       - kafka:kafka
     environment:

@@ -11,6 +11,7 @@ public class TestUtils {
                 .setId(UUID.randomUUID().toString())
                 .setFrom("from")
                 .setSubject("subject")
+                .setFile("file")
                 .build();
     }
 }

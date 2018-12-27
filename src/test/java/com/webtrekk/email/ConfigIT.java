@@ -32,7 +32,6 @@ public class ConfigIT {
     }
 
     @Bean(name = "materializedCount")
-    @Primary
     public Materialized<String, Long, KeyValueStore<Bytes, byte[]>> materializedCount() {
         return Materialized.<String, Long>as(keyValueBytesStoreSupplierCount())
                 .withKeySerde(Serdes.String())
@@ -40,7 +39,6 @@ public class ConfigIT {
     }
 
     @Bean(name = "materializedStatus")
-    @Primary
     public Materialized<String, Long, KeyValueStore<Bytes, byte[]>> materializedStatus() {
         return Materialized.<String, Long>as(keyValueBytesStoreSupplierStatus())
                 .withKeySerde(Serdes.String())

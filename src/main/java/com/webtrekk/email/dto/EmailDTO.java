@@ -21,23 +21,19 @@ public class EmailDTO {
     @ApiModelProperty(notes = "Subject")
     private String subject;
 
-    public EmailAvro toAvro(Integer retries, String encodedFile) {
+    public EmailAvro toAvro(String encodedFile) {
         return EmailAvro.newBuilder()
                 .setId(UUID.randomUUID().toString())
                 .setFrom(from)
                 .setSubject(Optional.ofNullable(subject).orElse(""))
-                .setRetries(retries)
                 .setFile(encodedFile)
                 .build();
     }
 
     public static EmailDTO fromAvro(EmailAvro avro) {
         return EmailDTO.builder()
-                .id(avro.getId())
                 .from(avro.getFrom())
                 .subject(avro.getSubject())
-                .retries(avro.getRetries())
-                .success(avro.getSuccess())
                 .build();
     }
 }

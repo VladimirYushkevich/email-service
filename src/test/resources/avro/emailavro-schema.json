@@ -28,6 +28,10 @@
         "name": "success",
         "type": "boolean",
         "default": false
+      },
+      {
+        "name": "file",
+        "type": "string"
       }
     ]
   }

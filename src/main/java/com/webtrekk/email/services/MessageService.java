@@ -8,7 +8,7 @@ public interface MessageService {
 
     String send(EmailAvro message);
 
-    Map<String, Long> stats();
+    Map<String, Long> counts();
 
     String status(String id);
 }

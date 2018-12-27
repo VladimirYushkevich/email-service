@@ -20,6 +20,7 @@ import org.springframework.cloud.stream.binder.kafka.streams.InteractiveQuerySer
 import org.springframework.context.annotation.Import;
 import org.springframework.kafka.test.EmbeddedKafkaBroker;
 import org.springframework.kafka.test.rule.EmbeddedKafkaRule;
+import org.springframework.test.annotation.DirtiesContext;
 import org.springframework.test.context.ActiveProfiles;
 import org.springframework.test.context.junit4.SpringRunner;
 
@@ -37,6 +38,7 @@ import static com.github.tomakehurst.wiremock.core.WireMockConfiguration.options
                 "spring.autoconfigure.exclude=org.springframework.cloud.stream.test.binder.TestSupportBinderAutoConfiguration"
         },
         webEnvironment = SpringBootTest.WebEnvironment.RANDOM_PORT)
+@DirtiesContext
 @Import(ConfigIT.class)
 @ActiveProfiles("test")
 public abstract class BaseIT {
@@ -69,6 +71,7 @@ public abstract class BaseIT {
     @BeforeClass
     public static void setup() {
         System.setProperty("spring.kafka.bootstrap-servers", embeddedKafka.getBrokersAsString());
+        System.setProperty("spring.cloud.stream.kafka.binder.brokers", "localhost");
     }
 
     @Before
