@@ -1,9 +1,8 @@
 package com.webtrekk.email.services;
 
-import com.webtrekk.email.dto.EmailDTO;
-import org.springframework.web.multipart.MultipartFile;
+import com.webtrekk.email.dto.EmailAvro;
 
 public interface EmailService {
 
-    void send(EmailDTO message, MultipartFile file);
+    EmailAvro send(EmailAvro message);
 }

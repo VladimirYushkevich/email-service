@@ -1,27 +1,44 @@
 version: '3'
 services:
-
   zookeeper:
-    image: wurstmeister/zookeeper:3.4.6
+    image: confluentinc/cp-zookeeper:5.0.0
+    hostname: zookeeper
     container_name: zookeeper
-    restart: always
     ports:
       - 2181:2181
+    environment:
+      ZOOKEEPER_CLIENT_PORT: 2181
+      ZOOKEEPER_TICK_TIME: 2000
 
   kafka:
-    image: wurstmeister/kafka:2.11-2.0.0
+    image: confluentinc/cp-kafka:5.0.0
     container_name: kafka
-    ports:
-      - 9092:9092
+    hostname: kafka
     depends_on:
       - zookeeper
-    links:
-      - zookeeper:zookeeper
+    ports:
+      - 9092:9092
+      - 29092:29092
     environment:
-      KAFKA_ADVERTISED_HOST_NAME: kafka
-      KAFKA_ADVERTISED_PORT: 9092
-      KAFKA_ZOOKEEPER_CONNECT: zookeeper:2181
-      KAFKA_CREATE_TOPICS: "Email:1:1,EmailRetry:1:1,EmailFail:1:1"
+      KAFKA_BROKER_ID: 1
+      KAFKA_ZOOKEEPER_CONNECT: 'zookeeper:2181'
+      KAFKA_LISTENER_SECURITY_PROTOCOL_MAP: PLAINTEXT:PLAINTEXT,PLAINTEXT_HOST:PLAINTEXT
+      KAFKA_ADVERTISED_LISTENERS: PLAINTEXT://kafka:9092,PLAINTEXT_HOST://localhost:29092
+      KAFKA_OFFSETS_TOPIC_REPLICATION_FACTOR: 1
+      KAFKA_GROUP_INITIAL_REBALANCE_DELAY_MS: 0
+
+  schema-registry:
+    image: confluentinc/cp-schema-registry:5.0.0
+    container_name: schema-registry
+    hostname: schema-registry
+    depends_on:
+      - zookeeper
+      - kafka
+    ports:
+      - 8081:8081
+    environment:
+      SCHEMA_REGISTRY_HOST_NAME: schema-registry
+      SCHEMA_REGISTRY_KAFKASTORE_CONNECTION_URL: 'zookeeper:2181'
 
   email-service:
     image: com/webtrekk/email-service
@@ -32,6 +49,7 @@ services:
     depends_on:
       - kafka
       - zookeeper
+      - schema-registry
     links:
       - kafka:kafka
     environment:

@@ -13,11 +13,24 @@ URI pointing to the actual document binaries)
 - Queuing until successful response from SMTP Server. Max Retry configurable.
 - No Authentication required.
 
+### Features
+
+- Schema registry supports for *avro* serialization
+- Kafka streams API
+- REST endpoint to fetch statistics from kafka streams materialized store  
+
 ### Run service:
 ```
 docker-compose up
 docker-compose down
+```
+In order to rebuild service
+```
 docker-compose up -d --no-deps --build email-service
+```
+Logs:
+```
+docker logs --tail email-service
 ```
 ### Example of requests
 ```
@@ -26,6 +39,14 @@ curl -i -X POST 'http://localhost:8888/api/v1/email' \
 -H "Content-Type: multipart/form-data" \
 -F 'file=@docs/CodeChallenge_Java_SWAT_2018.pdf;type=application/pdf' \
 -F 'email={"from": "from@example.com", "subject": "Subject"};type=application/json'
+```
+```
+curl localhost:8888/api/v1/email/status/{id} | jq
+```
+There is a background thread for sending random emails in kafka. Below endpoint should return new values
+every 60 sec
+```
+curl localhost:8888/api/v1/email/counts | jq
 ```
 ### Usage:
 [SWAGGER](http://localhost:8888/swagger-ui.html)  

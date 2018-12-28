@@ -9,7 +9,8 @@ import org.springframework.web.multipart.MultipartFile;
 @Slf4j
 public class SMTPClient {
 
-    public void sendEmail(EmailDTO emailDTO, MultipartFile file) {
+    public boolean sendEmail(EmailDTO emailDTO, MultipartFile file) {
         log.info("::sending email via dummy client: {}/{}", emailDTO, file);
+        return System.currentTimeMillis() % 2 == 0;
     }
 }

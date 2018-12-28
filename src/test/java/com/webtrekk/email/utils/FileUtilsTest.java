@@ -1,6 +1,5 @@
-package com.webtrekk.email;
+package com.webtrekk.email.utils;
 
-import com.webtrekk.email.utils.FileUtils;
 import org.junit.Test;
 import org.springframework.mock.web.MockMultipartFile;
 import org.springframework.web.multipart.MultipartFile;

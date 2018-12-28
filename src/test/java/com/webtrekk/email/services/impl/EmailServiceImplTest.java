@@ -1,6 +1,7 @@
 package com.webtrekk.email.services.impl;
 
 import com.webtrekk.email.client.SMTPClient;
+import com.webtrekk.email.dto.EmailAvro;
 import com.webtrekk.email.services.EmailService;
 import org.junit.Before;
 import org.junit.Test;
@@ -8,6 +9,11 @@ import org.junit.runner.RunWith;
 import org.mockito.Mock;
 import org.mockito.junit.MockitoJUnitRunner;
 
+import static com.webtrekk.email.TestUtils.getEmailAvroEvent;
+import static junit.framework.TestCase.assertTrue;
+import static org.hamcrest.MatcherAssert.assertThat;
+import static org.hamcrest.core.Is.is;
+import static org.junit.Assert.assertFalse;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.Mockito.*;
 
@@ -26,20 +32,40 @@ public class EmailServiceImplTest {
 
     @Test
     public void shouldSendEmailWithoutRetries() {
-        doNothing().when(emailClientMock).sendEmail(any(), any());
+        when(emailClientMock.sendEmail(any(), any())).thenReturn(true);
 
-        emailService.send(any(), any());
+        final EmailAvro emailAvro = emailService.send(EmailAvro.newBuilder(getEmailAvroEvent())
+                .setRetries(3)
+                .build());
 
         verify(emailClientMock, times(1)).sendEmail(any(), any());
+        assertTrue(emailAvro.getSuccess());
+        assertThat(emailAvro.getRetries(), is(2));
     }
 
-    @Test(expected = RuntimeException.class)
+    @Test
     public void shouldUseRetryDuringException() {
-        doThrow(new RuntimeException("from IT")).when(emailClientMock).sendEmail(any(), any());
+        when(emailClientMock.sendEmail(any(), any())).thenThrow(new RuntimeException("from Test"));
 
-        emailService.send(any(), any());
+        final EmailAvro emailAvro = emailService.send(EmailAvro.newBuilder(getEmailAvroEvent())
+                .setRetries(3)
+                .build());
 
-        verify(emailClientMock, times(2)).sendEmail(any(), any());
+        verify(emailClientMock, times(1)).sendEmail(any(), any());
+        assertFalse(emailAvro.getSuccess());
+        assertThat(emailAvro.getRetries(), is(2));
     }
 
+    @Test
+    public void shouldUseRetryAfterFail() {
+        when(emailClientMock.sendEmail(any(), any())).thenReturn(false);
+
+        final EmailAvro emailAvro = emailService.send(EmailAvro.newBuilder(getEmailAvroEvent())
+                .setRetries(3)
+                .build());
+
+        verify(emailClientMock, times(1)).sendEmail(any(), any());
+        assertFalse(emailAvro.getSuccess());
+        assertThat(emailAvro.getRetries(), is(2));
+    }
 }

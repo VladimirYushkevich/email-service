@@ -1,0 +1,84 @@
+server.port: 8888
+email.retries: 2
+swagger.email:
+  title: email-service
+  description: MicroService responsible of Asynchronous sending of Emails
+  version: 1.1
+  licenseUrl: https://www.apache.org/licenses/LICENSE-2.0
+  contact:
+    name: Vladimir Yushkevich
+    url: https://github.com/VladimirYushkevich
+    email: yushkevich.vladimir@gmail.com
+spring:
+  application:
+    name: email-service
+  kafka:
+    consumer:
+      group-id: email-avro-stream
+    bootstrap-servers: kafka:9092
+  cloud:
+    stream:
+      schema:
+        avro:
+          dynamic-schema-generation-enabled: true
+      schema-registry-client:
+        endpoint: http://schema-registry:8081
+      bindings:
+        emails-out:
+          destination: emails
+          contentType: application/*+avro
+        emails-in:
+          destination: emails
+          contentType: application/*+avro
+        emails-send-out:
+          destination: emails-send
+          contentType: application/*+avro
+        emails-send-in:
+          destination: emails-send
+          contentType: application/*+avro
+        emails-retry-out:
+          destination: emails-retry
+          contentType: application/*+avro
+        emails-retry-in:
+          destination: emails-retry
+          contentType: application/*+avro
+        emails-count-out:
+          destination: emails-count
+          contentType: application/*+avro
+        emails-count-in:
+          destination: emails-count
+          contentType: application/*+avro
+        emails-store-out:
+          destination: emails-store
+          producer:
+            use-native-encoding: true
+        emails-store-in:
+          destination: emails-store
+          consumer:
+            use-native-decoding: true
+      kafka:
+        binder:
+          brokers: kafka
+        streams:
+          binder:
+            configuration:
+              commit.interval.ms: 1000
+              default.key.serde: org.apache.kafka.common.serialization.Serdes$StringSerde
+              default.value.serde: org.apache.kafka.common.serialization.Serdes$LongSerde
+            serde-error: logandcontinue
+          bindings:
+            emails-in:
+              consumer:
+                application-id: emails-listener
+            emails-send-in:
+              consumer:
+                application-id: emails-send-listener
+            emails-retry-in:
+              consumer:
+                application-id: emails-retry-listener
+            emails-count-in:
+              consumer:
+                application-id: emails-count-listener
+            emails-store-in:
+              consumer:
+                application-id: emails-store-listener

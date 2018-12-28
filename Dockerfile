@@ -4,7 +4,7 @@ COPY . /opt/email-service
 WORKDIR /opt/email-service/
 RUN ./gradlew build
 
-FROM openjdk:8-jre-alpine
+FROM anapsix/alpine-java:latest
 VOLUME /tmp
 COPY --from=builder /opt/email-service/build/libs/email-service-*.jar email-service.jar
 EXPOSE 8878
