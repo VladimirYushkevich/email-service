@@ -2,7 +2,7 @@ email-service [![Build Status](https://travis-ci.org/VladimirYushkevich/email-se
 =
 ### Description:
 
-MicroService responsible of Asynchronous sending of Emails. It will be used by
+MicroService responsible for Asynchronous sending of Emails. It will be used by
 various other components to send mail to end customers.
 
 ### Requirements
